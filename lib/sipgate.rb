@@ -4,11 +4,18 @@ class Sipgate
   
   cattr_accessor :user, :password
   
-  def initialize
-    @client = XMLRPC::Client.new2("https://#{self.class.user}:#{self.class.password}@samurai.sipgate.net/RPC2")
-    http    = @client.instance_variable_get(:@http)
-    http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-    http.ca_path = '/etc/ssl/certs'
+  def initialize(options={})
+
+    options = {:account => :private}.merge(options)
+
+    if options[:account] == :team
+      @client = XMLRPC::Client.new2("https://#{CGI::escape(options[:user])}:#{options[:password]}@api.sipgate.net/RPC2")
+    else
+      @client = XMLRPC::Client.new2("https://#{options[:user]}:#{options[:password]}@samurai.sipgate.net/RPC2")
+      #http    = @client.instance_variable_get(:@http)
+      #http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      #http.ca_path = '/etc/ssl/certs'
+    end
   end
   
   # versendet ein Fax
